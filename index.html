@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Staff Schedule</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+
+        .controls {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .controls h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .form-group {
+            display: inline-block;
+            margin-right: 12px;
+            margin-bottom: 5px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 2px;
+            font-weight: bold;
+            color: #555;
+            font-size: 11px;
+        }
+
+        select, input {
+            padding: 4px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 13px;
+            min-width: 120px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .print-btn {
+            background-color: #2196F3;
+        }
+
+        .print-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .clear-btn {
+            background-color: #f44336;
+        }
+
+        .clear-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-btn {
+            background-color: #607d8b;
+            color: white;
+            padding: 5px 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #546e7a;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 140px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            z-index: 100;
+            top: 100%;
+            left: 0;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown-content a:first-child {
+            border-radius: 4px 4px 0 0;
+        }
+
+        .dropdown-content a:last-child {
+            border-radius: 0 0 4px 4px;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .dropdown-btn {
+            background-color: #546e7a;
+        }
+
+        @media print {
+            .dropdown {
+                display: none;
+            }
+        }
+
+        .control-sections {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .assignment-controls {
+            background: #e8f5e8;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #c8e6c8;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .weekend-controls {
+            background: #e3f2fd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #bbdefb;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .assignment-controls h3 {
+            margin-top: 0;
+            margin-bottom: 6px;
+            color: #2e7d32;
+            font-size: 13px;
+        }
+
+        .weekend-controls h3 {
+            margin-top: 0;
+            margin-bottom: 6px;
+            color: #1565c0;
+            font-size: 13px;
+        }
+
+        .clear-days-controls {
+            background: #fff3e0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ffcc80;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .clear-days-controls h3 {
+            margin-top: 0;
+            margin-bottom: 6px;
+            color: #e65100;
+            font-size: 13px;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .calendar-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .calendar-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calendar th {
+            background-color: #34495e;
+            color: white;
+            padding: 10px 3px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .calendar td {
+            border: 1px solid #bdc3c7;
+            height: 78px;
+            width: 14.28%;
+            vertical-align: top;
+            position: relative;
+            background-color: white;
+        }
+
+        .date-number {
+            position: absolute;
+            top: 1px;
+            left: 3px;
+            font-weight: bold;
+            font-size: 10px;
+            color: #2c3e50;
+        }
+
+        .assignment-space {
+            margin-top: 14px;
+            padding: 1px;
+            height: calc(100% - 14px);
+            background-color: #f8f9fa;
+            border-radius: 1px;
+            margin-left: 2px;
+            margin-right: 2px;
+            margin-bottom: 1px;
+        }
+
+        .assignment-lines {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .assignment-line {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding: 0;
+            height: 8px;
+            font-size: 6px;
+            color: #333;
+        }
+
+        .assignment-label {
+            font-weight: bold;
+            margin-right: 2px;
+            min-width: 32px;
+            font-size: 6px;
+            color: #666;
+        }
+
+        .assignment-value {
+            font-size: 6px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .assignment-line:last-child {
+            border-bottom: none;
+        }
+
+        .other-month {
+            background-color: #ecf0f1 !important;
+            color: #95a5a6;
+        }
+
+        .other-month .date-number {
+            color: #95a5a6;
+        }
+
+        .other-month .assignment-space {
+            background-color: #ecf0f1;
+        }
+
+        .today {
+            background-color: #e8f5e8 !important;
+        }
+
+        .today .date-number {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .controls {
+                display: none;
+            }
+
+            .calendar-container {
+                box-shadow: none;
+                border-radius: 0;
+                max-width: none;
+                margin: 0;
+            }
+
+            .calendar td {
+                height: 60px;
+                page-break-inside: avoid;
+                border: 1px solid #999;
+            }
+
+            .assignment-space {
+                margin-top: 12px;
+                height: calc(100% - 12px);
+            }
+
+            .assignment-line {
+                height: 7px;
+                padding: 0;
+            }
+
+            .assignment-label {
+                font-size: 5px;
+                min-width: 24px;
+            }
+
+            .assignment-value {
+                font-size: 5px;
+            }
+
+            .calendar-header {
+                padding: 5px;
+            }
+
+            .calendar-header h2 {
+                font-size: 15px;
+            }
+
+            .calendar th {
+                padding: 3px 1px;
+                font-size: 9px;
+            }
+
+            .date-number {
+                font-size: 9px;
+            }
+        }
+
+        @page {
+            margin: 0.1in;
+            size: letter landscape;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h1>Medical Staff Schedule</h1>
+
+        <div class="form-group">
+            <label for="monthSelect">Month:</label>
+            <select id="monthSelect" onchange="updateCalendar()">
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="yearInput">Year:</label>
+            <input type="number" id="yearInput" min="2000" max="2100" value="2025" onchange="updateCalendar()">
+        </div>
+
+        <button onclick="autoFillWeekdays()" style="background-color: #009688;">Auto-Fill Weekdays</button>
+        <button onclick="checkForErrors()" style="background-color: #673ab7;">Check for Errors</button>
+        <button onclick="generateReport()" style="background-color: #795548;">Report</button>
+        <button class="print-btn" onclick="window.print()">Print</button>
+        <button class="print-btn" onclick="downloadSchedule()">Download</button>
+        <button class="clear-btn" onclick="clearAllAssignments()">Clear All</button>
+        <button onclick="saveSchedule()" style="background-color: #ff9800;">Save</button>
+        <button onclick="loadSchedule()" style="background-color: #9c27b0;">Load</button>
+        <div class="dropdown">
+            <button class="dropdown-btn">Share ▼</button>
+            <div class="dropdown-content">
+                <a onclick="shareViaEmail()">Email (Text)</a>
+                <a onclick="shareViaSMS()">Text Message</a>
+                <a onclick="copyToClipboard()">Copy Text</a>
+                <a onclick="shareCalendarViaEmail()">Email (Calendar)</a>
+                <a onclick="openCalendarInNewTab()">Open Calendar in Tab</a>
+                <a onclick="copyCalendarHTML()">Copy Calendar HTML</a>
+            </div>
+        </div>
+
+        <div class="control-sections">
+            <div class="assignment-controls">
+                <h3>Make Assignment</h3>
+                <div class="form-group">
+                    <label for="assignmentType">Assignment:</label>
+                    <select id="assignmentType">
+                        <option value="">Select</option>
+                        <option value="call">call</option>
+                        <option value="mw2">mw2</option>
+                        <option value="mw3">mw3</option>
+                        <option value="post">post</option>
+                        <option value="off">off</option>
+                        <option value="vacation">vacation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="employeeName">Doctor:</label>
+                    <select id="employeeName">
+                        <option value="">Select</option>
+                        <option value="Margolies">Margolies</option>
+                        <option value="Racine">Racine</option>
+                        <option value="Mckeown">Mckeown</option>
+                        <option value="Jackson">Jackson</option>
+                        <option value="Piennette">Piennette</option>
+                        <option value="Fellow">Fellow</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Start:</label>
+                    <select id="startDate">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End:</label>
+                    <select id="endDate">
+                        <option value="">Single</option>
+                    </select>
+                </div>
+                <button onclick="makeAssignment()">Assign</button>
+                <button class="clear-btn" onclick="clearAssignment()">Unassign</button>
+            </div>
+
+            <div class="weekend-controls">
+                <h3>Weekend Call</h3>
+                <div class="form-group">
+                    <label for="weekendEmployee">Doctor:</label>
+                    <select id="weekendEmployee">
+                        <option value="">Select</option>
+                        <option value="Margolies">Margolies</option>
+                        <option value="Racine">Racine</option>
+                        <option value="Mckeown">Mckeown</option>
+                        <option value="Jackson">Jackson</option>
+                        <option value="Piennette">Piennette</option>
+                        <option value="Fellow">Fellow</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="weekendSelect">Weekend:</label>
+                    <select id="weekendSelect">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <button onclick="assignWeekend()">Assign</button>
+                <button class="clear-btn" onclick="clearWeekend()">Clear</button>
+            </div>
+
+            <div class="clear-days-controls">
+                <h3>Clear Days</h3>
+                <div class="form-group">
+                    <label for="clearStartDate">Start:</label>
+                    <select id="clearStartDate">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="clearEndDate">End:</label>
+                    <select id="clearEndDate">
+                        <option value="">Same Day</option>
+                    </select>
+                </div>
+                <button class="clear-btn" onclick="clearDays()">Clear Days</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <h2 id="calendarTitle">Select Month and Year</h2>
+        </div>
+
+        <table class="calendar">
+            <thead>
+                <tr>
+                    <th>Sunday</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                </tr>
+            </thead>
+            <tbody id="calendarBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let assignments = {};
+        let currentMonth, currentYear;
+
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'];
+
+        function updateCalendar() {
+            generateCalendar();
+        }
+
+        function generateCalendar() {
+            const monthSelect = document.getElementById('monthSelect');
+            const yearInput = document.getElementById('yearInput');
+            const month = parseInt(monthSelect.value);
+            const year = parseInt(yearInput.value);
+
+            currentMonth = month;
+            currentYear = year;
+
+            document.getElementById('calendarTitle').textContent = monthNames[month] + ' ' + year;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+
+            // Populate date dropdowns
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const clearStartDate = document.getElementById('clearStartDate');
+            const clearEndDate = document.getElementById('clearEndDate');
+            startDate.innerHTML = '<option value="">Select Date</option>';
+            endDate.innerHTML = '<option value="">Single Day</option>';
+            clearStartDate.innerHTML = '<option value="">Select Date</option>';
+            clearEndDate.innerHTML = '<option value="">Same Day</option>';
+            for (let i = 1; i <= daysInMonth; i++) {
+                const startOption = document.createElement('option');
+                startOption.value = i;
+                startOption.textContent = monthNames[month] + ' ' + i;
+                startDate.appendChild(startOption);
+
+                const endOption = document.createElement('option');
+                endOption.value = i;
+                endOption.textContent = monthNames[month] + ' ' + i;
+                endDate.appendChild(endOption);
+
+                const clearStartOption = document.createElement('option');
+                clearStartOption.value = i;
+                clearStartOption.textContent = monthNames[month] + ' ' + i;
+                clearStartDate.appendChild(clearStartOption);
+
+                const clearEndOption = document.createElement('option');
+                clearEndOption.value = i;
+                clearEndOption.textContent = monthNames[month] + ' ' + i;
+                clearEndDate.appendChild(clearEndOption);
+            }
+
+            // Populate weekend dropdown (Fridays - weekend is Fri/Sat/Sun)
+            const weekendSelect = document.getElementById('weekendSelect');
+            weekendSelect.innerHTML = '<option value="">Select Weekend</option>';
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const date = new Date(year, month, i);
+                if (date.getDay() === 5) { // Friday
+                    const sat = i + 1;
+                    const sun = i + 2;
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = monthNames[month] + ' ' + i + '-' + (sun <= daysInMonth ? sun : sun - daysInMonth);
+                    weekendSelect.appendChild(option);
+                }
+            }
+
+            // Generate calendar grid
+            const calendarBody = document.getElementById('calendarBody');
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+            const todayDate = today.getDate();
+
+            calendarBody.innerHTML = '';
+
+            let date = 1;
+            let nextMonthDate = 1;
+
+            for (let week = 0; week < 6; week++) {
+                const row = document.createElement('tr');
+
+                for (let day = 0; day < 7; day++) {
+                    const cell = document.createElement('td');
+                    const dateNumber = document.createElement('div');
+                    dateNumber.className = 'date-number';
+
+                    const assignmentSpace = document.createElement('div');
+                    assignmentSpace.className = 'assignment-space';
+
+                    const assignmentLines = document.createElement('div');
+                    assignmentLines.className = 'assignment-lines';
+
+                    if (week === 0 && day < startingDayOfWeek) {
+                        // Previous month days
+                        const prevMonth = new Date(year, month, 0);
+                        const prevDate = prevMonth.getDate() - (startingDayOfWeek - day - 1);
+                        dateNumber.textContent = prevDate;
+                        cell.className = 'other-month';
+                        createAssignmentLines(assignmentLines, null, month, year, day);
+                    } else if (date > daysInMonth) {
+                        // Next month days
+                        dateNumber.textContent = nextMonthDate;
+                        nextMonthDate++;
+                        cell.className = 'other-month';
+                        createAssignmentLines(assignmentLines, null, month, year, day);
+                    } else {
+                        // Current month days
+                        dateNumber.textContent = date;
+
+                        if (isCurrentMonth && date === todayDate) {
+                            cell.className = 'today';
+                        }
+
+                        createAssignmentLines(assignmentLines, date, month, year, day);
+                        date++;
+                    }
+
+                    assignmentSpace.appendChild(assignmentLines);
+                    cell.appendChild(dateNumber);
+                    cell.appendChild(assignmentSpace);
+                    row.appendChild(cell);
+                }
+
+                calendarBody.appendChild(row);
+
+                if (date > daysInMonth && nextMonthDate > 7) {
+                    break;
+                }
+            }
+        }
+
+        function isHoliday(date, month, year) {
+            // Designated holidays - call only, entered manually
+
+            // New Year's Day - January 1
+            if (month === 0 && date === 1) return "New Year's Day";
+
+            // 4th of July - July 4
+            if (month === 6 && date === 4) return "4th of July";
+
+            // Memorial Day - Last Monday of May
+            if (month === 4) {
+                const lastDay = new Date(year, 5, 0).getDate(); // Last day of May
+                const lastDayOfWeek = new Date(year, 4, lastDay).getDay();
+                const memorialDay = lastDay - ((lastDayOfWeek + 6) % 7);
+                if (date === memorialDay) return "Memorial Day";
+            }
+
+            // Labor Day - First Monday of September
+            if (month === 8) {
+                const firstDay = new Date(year, 8, 1).getDay();
+                const laborDay = 1 + ((8 - firstDay) % 7);
+                if (date === laborDay) return "Labor Day";
+            }
+
+            // Thanksgiving - 4th Thursday of November
+            if (month === 10) {
+                const firstDay = new Date(year, 10, 1).getDay();
+                const thanksgiving = 22 + ((11 - firstDay) % 7);
+                if (date === thanksgiving) return "Thanksgiving";
+            }
+
+            // Christmas Day - December 25
+            if (month === 11 && date === 25) return "Christmas Day";
+
+            return null;
+        }
+
+        function isThirdWednesday(date, month, year) {
+            const dayOfWeek = new Date(year, month, date).getDay();
+            if (dayOfWeek !== 3) return false; // Not a Wednesday
+
+            // Find the first Wednesday of the month
+            const firstDay = new Date(year, month, 1).getDay();
+            const firstWednesday = 1 + ((10 - firstDay) % 7);
+            const thirdWednesday = firstWednesday + 14;
+
+            return date === thirdWednesday;
+        }
+
+        function createAssignmentLines(container, date, month, year, dayOfWeek) {
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Sat, Sun only (Friday has full assignments)
+            const holiday = date ? isHoliday(date, month, year) : null;
+            const isCallOnly = isWeekend || holiday;
+
+            // Weekdays: call, mw2, mw3, post, vacation, off
+            // Weekends/Holidays: only call
+            const assignmentTypes = isCallOnly ? ['call'] : ['call', 'mw2', 'mw3', 'post', 'vacation', 'off'];
+
+            assignmentTypes.forEach(assignment => {
+                const line = document.createElement('div');
+                line.className = 'assignment-line';
+
+                const label = document.createElement('span');
+                label.className = 'assignment-label';
+                label.textContent = assignment + ':';
+
+                const value = document.createElement('span');
+                value.className = 'assignment-value';
+
+                if (date) {
+                    const key = year + '-' + month + '-' + date + '-' + assignment;
+                    value.textContent = assignments[key] || '';
+                }
+
+                line.appendChild(label);
+                line.appendChild(value);
+                container.appendChild(line);
+            });
+
+            // Add spacer for weekends/holidays
+            if (isCallOnly && date) {
+                const spacer = document.createElement('div');
+                spacer.style.height = '50px';
+                spacer.style.backgroundColor = holiday ? '#fff3e0' : '#f0f8f0';
+                spacer.style.borderRadius = '3px';
+                spacer.style.margin = '2px 0';
+                spacer.style.display = 'flex';
+                spacer.style.alignItems = 'center';
+                spacer.style.justifyContent = 'center';
+                spacer.style.fontSize = '8px';
+                spacer.style.color = '#666';
+                spacer.style.textAlign = 'center';
+                spacer.style.fontWeight = 'bold';
+                spacer.textContent = holiday || 'Weekend';
+                container.appendChild(spacer);
+            }
+        }
+
+        function makeAssignment() {
+            const assignment = document.getElementById('assignmentType').value;
+            const employee = document.getElementById('employeeName').value;
+            const startDateValue = parseInt(document.getElementById('startDate').value);
+            const endDateValue = document.getElementById('endDate').value ? parseInt(document.getElementById('endDate').value) : null;
+
+            if (!assignment || !employee || !startDateValue) {
+                alert('Please select assignment, doctor, and start date');
+                return;
+            }
+
+            const endDate = endDateValue || startDateValue;
+
+            if (startDateValue > endDate) {
+                alert('End date must be after start date');
+                return;
+            }
+
+            for (let date = startDateValue; date <= endDate; date++) {
+                const key = currentYear + '-' + currentMonth + '-' + date + '-' + assignment;
+                assignments[key] = employee;
+
+                // Auto-assign post-call for next day if assigning call
+                if (assignment === 'call') {
+                    const nextDate = date + 1;
+                    const nextDayOfWeek = new Date(currentYear, currentMonth, nextDate).getDay();
+                    // Only auto-assign post if next day is a weekday
+                    if (nextDayOfWeek !== 0 && nextDayOfWeek !== 6) {
+                        // Check if doctor already has an assignment on next day
+                        const nextDayPrefix = currentYear + '-' + currentMonth + '-' + nextDate + '-';
+                        const hasExistingAssignment = ['call', 'mw2', 'mw3', 'post', 'off', 'vacation'].some(
+                            type => assignments[nextDayPrefix + type] === employee
+                        );
+                        if (!hasExistingAssignment) {
+                            const postKey = nextDayPrefix + 'post';
+                            assignments[postKey] = employee;
+                        }
+                    }
+                }
+            }
+
+            // Reset form
+            document.getElementById('assignmentType').value = '';
+            document.getElementById('employeeName').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+
+            generateCalendar();
+        }
+
+        function clearAssignment() {
+            const assignment = document.getElementById('assignmentType').value;
+            const startDateValue = parseInt(document.getElementById('startDate').value);
+            const endDateValue = document.getElementById('endDate').value ? parseInt(document.getElementById('endDate').value) : null;
+
+            if (!assignment || !startDateValue) {
+                alert('Please select assignment and start date to clear');
+                return;
+            }
+
+            const endDate = endDateValue || startDateValue;
+
+            for (let date = startDateValue; date <= endDate; date++) {
+                const key = currentYear + '-' + currentMonth + '-' + date + '-' + assignment;
+                delete assignments[key];
+            }
+
+            document.getElementById('assignmentType').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+
+            generateCalendar();
+        }
+
+        function autoFillWeekdays() {
+            // Fellow is excluded from auto-fill - only assigned manually
+            const doctors = ['Margolies', 'Racine', 'Mckeown', 'Jackson', 'Piennette'];
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // Step 1: Collect all weekdays (Mon-Fri) that need assignments
+            // Friday call is assigned via Weekend Call, but other assignments are auto-filled
+            const weekdays = [];
+            for (let date = 1; date <= daysInMonth; date++) {
+                const dayOfWeek = new Date(currentYear, currentMonth, date).getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Sat, Sun only
+                const holiday = isHoliday(date, currentMonth, currentYear);
+
+                if (!isWeekend && !holiday) {
+                    weekdays.push({ date, dayOfWeek });
+                }
+            }
+
+            // Step 2: Pre-compute call assignments with equal distribution
+            // Track call counts and off counts per doctor
+            const callCounts = {};
+            const offCounts = {};
+            const weeklyOffCounts = {}; // weeklyOffCounts[doctor][weekNum] = count (max 1 per week)
+            const weeklyCallCounts = {}; // weeklyCallCounts[doctor][weekNum] = count (max 1 per week)
+            const dayOfWeekCounts = {}; // dayOfWeekCounts[doctor][dayOfWeek] = count
+            doctors.forEach(d => {
+                callCounts[d] = 0;
+                offCounts[d] = 0;
+                weeklyOffCounts[d] = {};
+                weeklyCallCounts[d] = {};
+                dayOfWeekCounts[d] = { 1: 0, 2: 0, 3: 0, 4: 0 }; // Mon-Thu only for call distribution
+            });
+
+            // Helper to get week number for a date (weeks start on Sunday)
+            function getWeekNumber(date) {
+                const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+                return Math.floor((date + firstDay - 1) / 7);
+            }
+
+            // Collect weekend call assignments to know who has weekend call
+            const weekendCallDoctors = {}; // fridayDate -> doctor
+            for (let date = 1; date <= daysInMonth; date++) {
+                const dow = new Date(currentYear, currentMonth, date).getDay();
+                if (dow === 5) { // Friday
+                    const callKey = currentYear + '-' + currentMonth + '-' + date + '-call';
+                    if (assignments[callKey]) {
+                        weekendCallDoctors[date] = assignments[callKey];
+                    }
+                }
+            }
+
+            // First, account for manually pre-assigned calls
+            const callAssignments = {}; // date -> doctor
+            weekdays.forEach(({ date }) => {
+                const callKey = currentYear + '-' + currentMonth + '-' + date + '-call';
+                if (assignments[callKey]) {
+                    const doctor = assignments[callKey];
+                    callAssignments[date] = doctor;
+                    callCounts[doctor]++;
+                    const dow = new Date(currentYear, currentMonth, date).getDay();
+                    if (dow >= 1 && dow <= 4) {
+                        dayOfWeekCounts[doctor][dow]++;
+                        // Track weekly call counts for manual assignments
+                        const weekNum = getWeekNumber(date);
+                        weeklyCallCounts[doctor][weekNum] = (weeklyCallCounts[doctor][weekNum] || 0) + 1;
+                    }
+                }
+            });
+
+            // Get vacation assignments to know who's unavailable
+            const vacationDays = {}; // date -> doctor on vacation
+            for (let date = 1; date <= daysInMonth; date++) {
+                const vacKey = currentYear + '-' + currentMonth + '-' + date + '-vacation';
+                if (assignments[vacKey]) {
+                    vacationDays[date] = assignments[vacKey];
+                }
+            }
+
+            // Helper to check if doctor has weekend call this week (Friday of same week)
+            function hasWeekendCallThisWeek(doctor, date) {
+                const dow = new Date(currentYear, currentMonth, date).getDay();
+                // Find Friday of this week
+                const daysUntilFriday = 5 - dow;
+                const fridayDate = date + daysUntilFriday;
+                if (fridayDate <= daysInMonth) {
+                    return weekendCallDoctors[fridayDate] === doctor;
+                }
+                return false;
+            }
+
+            // Assign calls to remaining weekdays (Mon-Thu only, Friday call is part of weekend)
+            const unassignedDays = weekdays.filter(w => w.dayOfWeek >= 1 && w.dayOfWeek <= 4 && !callAssignments[w.date]);
+
+            // Function to find best doctor for a call assignment
+            function findBestDoctorForCall(date, dayOfWeek, excludeDoctors = []) {
+                const postCallDoctor = getPostCallDoctor(date);
+                const vacationDoctor = vacationDays[date];
+                const yesterdayCallDoctor = getYesterdayCallDoctor(date);
+                const tomorrowCallDoctor = getTomorrowCallDoctor(date);
+                const weekNum = getWeekNumber(date);
+
+                // Available doctors: not on vacation, not post-call, not on call yesterday or tomorrow, not excluded
+                let available = doctors.filter(d =>
+                    d !== vacationDoctor &&
+                    d !== postCallDoctor &&
+                    d !== yesterdayCallDoctor &&
+                    d !== tomorrowCallDoctor &&
+                    !excludeDoctors.includes(d)
+                );
+
+                if (available.length === 0) return null;
+
+                // Max 1 weekday call per week - exclude doctors who already have a call this week
+                const noCallThisWeek = available.filter(d => !weeklyCallCounts[d][weekNum]);
+                if (noCallThisWeek.length > 0) {
+                    available = noCallThisWeek;
+                }
+
+                // For Wed/Thu (dayOfWeek 3 or 4), exclude doctors with weekend call this week if possible
+                // They should only be assigned call on Mon/Tue before their weekend
+                if (dayOfWeek >= 3 && dayOfWeek <= 4) {
+                    const nonWeekendDoctors = available.filter(d => !hasWeekendCallThisWeek(d, date));
+                    if (nonWeekendDoctors.length > 0) {
+                        available = nonWeekendDoctors;
+                    }
+                }
+
+                // Sort by: 1) fewest calls on this day-of-week, 2) fewest total calls
+                available.sort((a, b) => {
+                    const dowDiff = dayOfWeekCounts[a][dayOfWeek] - dayOfWeekCounts[b][dayOfWeek];
+                    if (dowDiff !== 0) return dowDiff;
+                    return callCounts[a] - callCounts[b];
+                });
+
+                return available[0];
+            }
+
+            // Helper to get who is on call tomorrow (to prevent consecutive calls, e.g., Thu-Fri)
+            function getTomorrowCallDoctor(date) {
+                const tomorrow = date + 1;
+                if (tomorrow <= daysInMonth) {
+                    const tKey = currentYear + '-' + currentMonth + '-' + tomorrow + '-call';
+                    if (assignments[tKey]) return assignments[tKey];
+                    if (callAssignments[tomorrow]) return callAssignments[tomorrow];
+                }
+                return null;
+            }
+
+            // Helper to get who was on call yesterday (to prevent consecutive calls)
+            function getYesterdayCallDoctor(date) {
+                const yesterday = date - 1;
+                if (yesterday >= 1) {
+                    const yKey = currentYear + '-' + currentMonth + '-' + yesterday + '-call';
+                    if (assignments[yKey]) return assignments[yKey];
+                    if (callAssignments[yesterday]) return callAssignments[yesterday];
+                }
+                // Check previous month's last day for date 1
+                if (date === 1) {
+                    const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+                    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                    const lastMonthKey = prevYear + '-' + prevMonth + '-' + prevMonthLastDay + '-call';
+                    return assignments[lastMonthKey] || null;
+                }
+                return null;
+            }
+
+            // Helper to get who was on call yesterday
+            function getPostCallDoctor(date) {
+                // Check yesterday
+                const yesterday = date - 1;
+                if (yesterday >= 1) {
+                    const yKey = currentYear + '-' + currentMonth + '-' + yesterday + '-call';
+                    if (assignments[yKey]) return assignments[yKey];
+                    if (callAssignments[yesterday]) return callAssignments[yesterday];
+                }
+                // Check previous month's last day for date 1
+                if (date === 1) {
+                    const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+                    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                    const lastMonthKey = prevYear + '-' + prevMonth + '-' + prevMonthLastDay + '-call';
+                    return assignments[lastMonthKey] || null;
+                }
+                return null;
+            }
+
+            // Assign Mon-Thu calls with equal distribution
+            unassignedDays.forEach(({ date, dayOfWeek }) => {
+                const doctor = findBestDoctorForCall(date, dayOfWeek);
+                if (doctor) {
+                    callAssignments[date] = doctor;
+                    callCounts[doctor]++;
+                    dayOfWeekCounts[doctor][dayOfWeek]++;
+                    const weekNum = getWeekNumber(date);
+                    weeklyCallCounts[doctor][weekNum] = (weeklyCallCounts[doctor][weekNum] || 0) + 1;
+                }
+            });
+
+            // Step 3: Now fill in all assignments day by day (Mon-Fri)
+            for (let date = 1; date <= daysInMonth; date++) {
+                const dayOfWeek = new Date(currentYear, currentMonth, date).getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Sat, Sun only
+                const holiday = isHoliday(date, currentMonth, currentYear);
+                const isFriday = dayOfWeek === 5;
+
+                if (isWeekend || holiday) continue;
+
+                const isMonday = dayOfWeek === 1;
+                const callKey = currentYear + '-' + currentMonth + '-' + date + '-call';
+                const postKey = currentYear + '-' + currentMonth + '-' + date + '-post';
+                const offKey = currentYear + '-' + currentMonth + '-' + date + '-off';
+                const mw2Key = currentYear + '-' + currentMonth + '-' + date + '-mw2';
+                const mw3Key = currentYear + '-' + currentMonth + '-' + date + '-mw3';
+                const vacKey = currentYear + '-' + currentMonth + '-' + date + '-vacation';
+
+                // Assign call (skip Friday - Friday call is part of weekend assignment)
+                if (!isFriday && callAssignments[date] && !assignments[callKey]) {
+                    assignments[callKey] = callAssignments[date];
+                }
+                const todayCallDoctor = assignments[callKey] || callAssignments[date];
+
+                // Assign post (previous day's call doctor)
+                // Only if doctor doesn't already have an assignment today
+                // Special rule: Margolies cannot be post on 3rd Wednesday
+                const postCallDoctor = getPostCallDoctor(date);
+                const isThirdWed = isThirdWednesday(date, currentMonth, currentYear);
+                if (postCallDoctor && !assignments[postKey]) {
+                    const dayPrefix = currentYear + '-' + currentMonth + '-' + date + '-';
+                    const postDoctorHasAssignment = ['call', 'mw2', 'mw3', 'off', 'vacation'].some(
+                        type => assignments[dayPrefix + type] === postCallDoctor
+                    );
+                    // Skip if Margolies on 3rd Wednesday (unless on vacation)
+                    const margoliesRestriction = isThirdWed && postCallDoctor === 'Margolies' && !assignments[dayPrefix + 'vacation'];
+                    if (!postDoctorHasAssignment && !margoliesRestriction) {
+                        assignments[postKey] = postCallDoctor;
+                    }
+                }
+
+                // Get vacation doctor for today
+                const vacationDoctor = assignments[vacKey];
+
+                // Get tomorrow's call doctor (for off/mw3 assignment)
+                let tomorrowCallDoctor = null;
+                const tomorrow = date + 1;
+                if (tomorrow <= daysInMonth) {
+                    const tomorrowDow = new Date(currentYear, currentMonth, tomorrow).getDay();
+                    const tomorrowHoliday = isHoliday(tomorrow, currentMonth, currentYear);
+                    // Only look at weekday tomorrow (Mon-Fri, not Sat/Sun)
+                    if (tomorrowDow >= 1 && tomorrowDow <= 5 && !tomorrowHoliday) {
+                        const tomorrowCallKey = currentYear + '-' + currentMonth + '-' + tomorrow + '-call';
+                        tomorrowCallDoctor = assignments[tomorrowCallKey] || callAssignments[tomorrow];
+                    }
+                }
+
+                // Get current week number for tracking
+                const currentWeek = getWeekNumber(date);
+
+                // Helper to check if doctor can receive off (hasn't had one this week)
+                function canReceiveOff(doctor) {
+                    return !weeklyOffCounts[doctor][currentWeek];
+                }
+
+                // Build list of doctors who need assignments today
+                // Each doctor can only have ONE assignment per day
+                const assignedToday = {};  // doctor -> assignment type
+
+                // First, record ALL pre-existing assignments (call, post, vacation, mw2, mw3, off)
+                if (todayCallDoctor && doctors.includes(todayCallDoctor)) {
+                    assignedToday[todayCallDoctor] = 'call';
+                }
+                if (postCallDoctor && doctors.includes(postCallDoctor) && !assignedToday[postCallDoctor]) {
+                    assignedToday[postCallDoctor] = 'post';
+                }
+                if (vacationDoctor && doctors.includes(vacationDoctor) && !assignedToday[vacationDoctor]) {
+                    assignedToday[vacationDoctor] = 'vacation';
+                }
+                // Check for pre-existing mw2, mw3, off assignments
+                const existingMw2 = assignments[mw2Key];
+                if (existingMw2 && doctors.includes(existingMw2) && !assignedToday[existingMw2]) {
+                    assignedToday[existingMw2] = 'mw2';
+                }
+                const existingMw3 = assignments[mw3Key];
+                if (existingMw3 && doctors.includes(existingMw3) && !assignedToday[existingMw3]) {
+                    assignedToday[existingMw3] = 'mw3';
+                }
+                const existingOff = assignments[offKey];
+                if (existingOff && doctors.includes(existingOff) && !assignedToday[existingOff]) {
+                    assignedToday[existingOff] = 'off';
+                }
+
+                // Get list of unassigned doctors
+                function getUnassignedDoctors() {
+                    return doctors.filter(d => !assignedToday[d]);
+                }
+
+                // OFF ASSIGNMENT RULES:
+                // 1. Each doctor should get exactly 1 off per week (when no vacations)
+                // 2. Preferably, off is the day before their call day
+                // 3. Equal monthly distribution
+                //
+                // MW3 ASSIGNMENT RULES:
+                // 1. If vacation exists, mw3 = tomorrow's call doctor
+                // 2. Otherwise, mw3 goes to remaining doctors
+
+                if (vacationDoctor) {
+                    // Someone on vacation: give mw3 to tomorrow's call doctor
+                    if (tomorrowCallDoctor && !assignedToday[tomorrowCallDoctor] && doctors.includes(tomorrowCallDoctor)) {
+                        if (!assignments[mw3Key]) {
+                            assignments[mw3Key] = tomorrowCallDoctor;
+                            assignedToday[tomorrowCallDoctor] = 'mw3';
+                        }
+                    }
+                    // No off assignment when there's vacation
+                } else {
+                    // No vacation: assign off
+                    // Priority: tomorrow's call doctor gets off (day before call) IF they need an off this week
+                    // Special rule: Margolies cannot be off on 3rd Wednesday
+
+                    // Get doctors who still need an off this week
+                    // Exclude Margolies on 3rd Wednesday
+                    let doctorsNeedingOff = doctors.filter(d =>
+                        !assignedToday[d] &&
+                        canReceiveOff(d) &&
+                        !(isThirdWed && d === 'Margolies')
+                    );
+
+                    // Check if tomorrow's call doctor can get off (not Margolies on 3rd Wed)
+                    const tomorrowCanGetOff = tomorrowCallDoctor &&
+                        !assignedToday[tomorrowCallDoctor] &&
+                        doctors.includes(tomorrowCallDoctor) &&
+                        canReceiveOff(tomorrowCallDoctor) &&
+                        !(isThirdWed && tomorrowCallDoctor === 'Margolies');
+
+                    if (tomorrowCanGetOff) {
+                        // Tomorrow's call doctor needs off and is available - give them off
+                        if (!assignments[offKey]) {
+                            assignments[offKey] = tomorrowCallDoctor;
+                            assignedToday[tomorrowCallDoctor] = 'off';
+                            offCounts[tomorrowCallDoctor]++;
+                            weeklyOffCounts[tomorrowCallDoctor][currentWeek] = 1;
+                        }
+                    } else if (doctorsNeedingOff.length > 0) {
+                        // Tomorrow's call doctor already has off this week or is unavailable
+                        // Find another doctor who needs an off this week
+                        // Sort by fewest total monthly offs for balance
+                        doctorsNeedingOff.sort((a, b) => offCounts[a] - offCounts[b]);
+                        if (!assignments[offKey]) {
+                            assignments[offKey] = doctorsNeedingOff[0];
+                            assignedToday[doctorsNeedingOff[0]] = 'off';
+                            offCounts[doctorsNeedingOff[0]]++;
+                            weeklyOffCounts[doctorsNeedingOff[0]][currentWeek] = 1;
+                        }
+                    }
+
+                    // If tomorrow's call doctor didn't get off, they need another assignment
+                    if (tomorrowCallDoctor &&
+                        !assignedToday[tomorrowCallDoctor] &&
+                        doctors.includes(tomorrowCallDoctor)) {
+                        if (!assignments[mw3Key]) {
+                            assignments[mw3Key] = tomorrowCallDoctor;
+                            assignedToday[tomorrowCallDoctor] = 'mw3';
+                        }
+                    }
+                }
+
+                // Get remaining unassigned doctors
+                let unassigned = getUnassignedDoctors();
+
+                // Assign mw2
+                if (unassigned.length > 0 && !assignments[mw2Key]) {
+                    assignments[mw2Key] = unassigned[0];
+                    assignedToday[unassigned[0]] = 'mw2';
+                    unassigned = getUnassignedDoctors();
+                }
+
+                // Assign mw3 if not already assigned
+                if (unassigned.length > 0 && !assignments[mw3Key]) {
+                    assignments[mw3Key] = unassigned[0];
+                    assignedToday[unassigned[0]] = 'mw3';
+                    unassigned = getUnassignedDoctors();
+                }
+
+                // CLEANUP: Ensure all 5 doctors have exactly one assignment
+                // Fill any remaining empty slots with unassigned doctors
+                unassigned = getUnassignedDoctors();
+                if (unassigned.length > 0) {
+                    // Determine which slots are empty (order: call, post, off, mw2, mw3)
+                    // Note: vacation is manual and doesn't need filling
+                    const emptySlots = [];
+                    if (!assignments[callKey]) emptySlots.push('call');
+                    if (!assignments[postKey]) emptySlots.push('post');
+                    if (!assignments[offKey] && !vacationDoctor) emptySlots.push('off');
+                    if (!assignments[mw2Key]) emptySlots.push('mw2');
+                    if (!assignments[mw3Key]) emptySlots.push('mw3');
+
+                    // Assign unassigned doctors to empty slots
+                    for (let i = 0; i < unassigned.length && i < emptySlots.length; i++) {
+                        const slot = emptySlots[i];
+                        const doctor = unassigned[i];
+                        const slotKey = currentYear + '-' + currentMonth + '-' + date + '-' + slot;
+                        assignments[slotKey] = doctor;
+                        assignedToday[doctor] = slot;
+                        if (slot === 'off') {
+                            offCounts[doctor]++;
+                            weeklyOffCounts[doctor][currentWeek] = 1;
+                        }
+                        if (slot === 'call') {
+                            callCounts[doctor]++;
+                            const weekNum = getWeekNumber(date);
+                            weeklyCallCounts[doctor][weekNum] = (weeklyCallCounts[doctor][weekNum] || 0) + 1;
+                            if (!isFriday) {
+                                dayOfWeekCounts[doctor][dayOfWeek]++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            generateCalendar();
+            alert('Weekday schedule auto-filled!');
+        }
+
+        function assignWeekend() {
+            const employee = document.getElementById('weekendEmployee').value;
+            const fridayDate = parseInt(document.getElementById('weekendSelect').value);
+
+            if (!employee || !fridayDate) {
+                alert('Please select doctor and weekend');
+                return;
+            }
+
+            const friday = fridayDate;
+            const saturday = fridayDate + 1;
+            const sunday = fridayDate + 2;
+
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // Assign Friday call
+            assignments[currentYear + '-' + currentMonth + '-' + friday + '-call'] = employee;
+
+            // Assign Saturday call (if in same month)
+            if (saturday <= daysInMonth) {
+                assignments[currentYear + '-' + currentMonth + '-' + saturday + '-call'] = employee;
+            }
+
+            // Assign Sunday call (if in same month)
+            if (sunday <= daysInMonth) {
+                assignments[currentYear + '-' + currentMonth + '-' + sunday + '-call'] = employee;
+            }
+
+            // Auto-assign Monday post-call (only if doctor doesn't have another assignment)
+            const monday = sunday + 1;
+            if (monday <= daysInMonth) {
+                const mondayPrefix = currentYear + '-' + currentMonth + '-' + monday + '-';
+                const hasExistingAssignment = ['call', 'mw2', 'mw3', 'post', 'off', 'vacation'].some(
+                    type => assignments[mondayPrefix + type] === employee
+                );
+                if (!hasExistingAssignment) {
+                    assignments[mondayPrefix + 'post'] = employee;
+                }
+            }
+
+            document.getElementById('weekendEmployee').value = '';
+            document.getElementById('weekendSelect').value = '';
+
+            generateCalendar();
+        }
+
+        function clearWeekend() {
+            const fridayDate = parseInt(document.getElementById('weekendSelect').value);
+
+            if (!fridayDate) {
+                alert('Please select a weekend to clear');
+                return;
+            }
+
+            const friday = fridayDate;
+            const saturday = fridayDate + 1;
+            const sunday = fridayDate + 2;
+            const monday = fridayDate + 3;
+
+            delete assignments[currentYear + '-' + currentMonth + '-' + friday + '-call'];
+            delete assignments[currentYear + '-' + currentMonth + '-' + saturday + '-call'];
+            delete assignments[currentYear + '-' + currentMonth + '-' + sunday + '-call'];
+            delete assignments[currentYear + '-' + currentMonth + '-' + monday + '-post'];
+
+            document.getElementById('weekendSelect').value = '';
+            generateCalendar();
+        }
+
+        function clearAllAssignments() {
+            if (confirm('Clear all assignments for this month?')) {
+                // Only clear current month's assignments
+                const prefix = currentYear + '-' + currentMonth + '-';
+                Object.keys(assignments).forEach(key => {
+                    if (key.startsWith(prefix)) {
+                        delete assignments[key];
+                    }
+                });
+                generateCalendar();
+            }
+        }
+
+        function clearDays() {
+            const startDateValue = parseInt(document.getElementById('clearStartDate').value);
+            const endDateValue = document.getElementById('clearEndDate').value ? parseInt(document.getElementById('clearEndDate').value) : null;
+
+            if (!startDateValue) {
+                alert('Please select a start date');
+                return;
+            }
+
+            const endDate = endDateValue || startDateValue;
+
+            if (startDateValue > endDate) {
+                alert('End date must be after start date');
+                return;
+            }
+
+            const dateRange = startDateValue === endDate
+                ? monthNames[currentMonth] + ' ' + startDateValue
+                : monthNames[currentMonth] + ' ' + startDateValue + ' - ' + endDate;
+
+            if (confirm('Clear all assignments for ' + dateRange + '?')) {
+                const assignmentTypes = ['call', 'mw2', 'mw3', 'post', 'off', 'vacation'];
+
+                for (let date = startDateValue; date <= endDate; date++) {
+                    assignmentTypes.forEach(type => {
+                        const key = currentYear + '-' + currentMonth + '-' + date + '-' + type;
+                        delete assignments[key];
+                    });
+                }
+
+                // Reset dropdowns
+                document.getElementById('clearStartDate').value = '';
+                document.getElementById('clearEndDate').value = '';
+
+                generateCalendar();
+            }
+        }
+
+        function checkForErrors() {
+            const doctors = ['Margolies', 'Racine', 'Mckeown', 'Jackson', 'Piennette'];
+            const errors = [];
+            const warnings = [];
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // Helper to get assignment for a date and type
+            function getAssignment(date, type) {
+                const key = currentYear + '-' + currentMonth + '-' + date + '-' + type;
+                return assignments[key] || null;
+            }
+
+            // Helper to get day name
+            function getDayName(date) {
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                return days[new Date(currentYear, currentMonth, date).getDay()];
+            }
+
+            // Helper to format date
+            function formatDate(date) {
+                return monthNames[currentMonth] + ' ' + date + ' (' + getDayName(date) + ')';
+            }
+
+            // Helper to get week number
+            function getWeekNumber(date) {
+                const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+                return Math.floor((date + firstDay - 1) / 7);
+            }
+
+            // Track weekly call counts for each doctor
+            const weeklyCallCounts = {};
+            doctors.forEach(d => { weeklyCallCounts[d] = {}; });
+
+            // Check each day of the month
+            for (let date = 1; date <= daysInMonth; date++) {
+                const dayOfWeek = new Date(currentYear, currentMonth, date).getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                const isFriday = dayOfWeek === 5;
+                const isMonday = dayOfWeek === 1;
+                const holiday = isHoliday(date, currentMonth, currentYear);
+
+                // Get all assignments for this day
+                const call = getAssignment(date, 'call');
+                const mw2 = getAssignment(date, 'mw2');
+                const mw3 = getAssignment(date, 'mw3');
+                const post = getAssignment(date, 'post');
+                const off = getAssignment(date, 'off');
+                const vacation = getAssignment(date, 'vacation');
+
+                // === WEEKEND CHECKS ===
+                if (isWeekend) {
+                    // Check call is assigned on weekends
+                    if (!call) {
+                        errors.push(formatDate(date) + ': No call assignment');
+                    }
+                    continue; // Skip other checks for weekends
+                }
+
+                // === HOLIDAY CHECKS ===
+                if (holiday) {
+                    if (!call) {
+                        errors.push(formatDate(date) + ' (' + holiday + '): No call assignment');
+                    }
+                    continue; // Skip other checks for holidays
+                }
+
+                // === WEEKDAY CHECKS ===
+
+                // Check 1: All required slots should be filled
+                if (!call) errors.push(formatDate(date) + ': Missing call assignment');
+                if (!mw2) errors.push(formatDate(date) + ': Missing mw2 assignment');
+                if (!mw3) errors.push(formatDate(date) + ': Missing mw3 assignment');
+                if (!post) errors.push(formatDate(date) + ': Missing post assignment');
+                if (!off && !vacation) errors.push(formatDate(date) + ': Missing off or vacation assignment');
+
+                // Check 2: Each doctor should have exactly one assignment
+                const dayAssignments = {};
+                const assignmentsList = [
+                    { type: 'call', doctor: call },
+                    { type: 'mw2', doctor: mw2 },
+                    { type: 'mw3', doctor: mw3 },
+                    { type: 'post', doctor: post },
+                    { type: 'off', doctor: off },
+                    { type: 'vacation', doctor: vacation }
+                ];
+
+                assignmentsList.forEach(({ type, doctor }) => {
+                    if (doctor) {
+                        if (dayAssignments[doctor]) {
+                            errors.push(formatDate(date) + ': ' + doctor + ' has multiple assignments (' + dayAssignments[doctor] + ' and ' + type + ')');
+                        } else {
+                            dayAssignments[doctor] = type;
+                        }
+                    }
+                });
+
+                // Check 3: All 5 doctors should have an assignment (excluding Fellow)
+                doctors.forEach(doctor => {
+                    if (!dayAssignments[doctor]) {
+                        errors.push(formatDate(date) + ': ' + doctor + ' has no assignment');
+                    }
+                });
+
+                // Check 4: No consecutive calls
+                if (call && date > 1) {
+                    const yesterdayCall = getAssignment(date - 1, 'call');
+                    if (yesterdayCall === call) {
+                        errors.push(formatDate(date) + ': ' + call + ' has consecutive calls (also on call ' + formatDate(date - 1) + ')');
+                    }
+                }
+
+                // Check 5: Post should match previous day's call doctor
+                if (post) {
+                    let expectedPostDoctor = null;
+                    if (date > 1) {
+                        expectedPostDoctor = getAssignment(date - 1, 'call');
+                    } else {
+                        // First day of month - check previous month's last day
+                        const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+                        const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                        const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                        const prevKey = prevYear + '-' + prevMonth + '-' + prevMonthLastDay + '-call';
+                        expectedPostDoctor = assignments[prevKey] || null;
+                    }
+                    if (expectedPostDoctor && post !== expectedPostDoctor) {
+                        warnings.push(formatDate(date) + ': Post is ' + post + ' but yesterday\'s call was ' + expectedPostDoctor);
+                    }
+                }
+
+                // Check 6: Track weekly call counts (Mon-Thu only)
+                if (call && dayOfWeek >= 1 && dayOfWeek <= 4) {
+                    const weekNum = getWeekNumber(date);
+                    weeklyCallCounts[call][weekNum] = (weeklyCallCounts[call][weekNum] || 0) + 1;
+                }
+
+                // Check 7: Friday call should match weekend (Sat/Sun)
+                if (isFriday && call) {
+                    const saturdayCall = getAssignment(date + 1, 'call');
+                    const sundayCall = getAssignment(date + 2, 'call');
+                    if (saturdayCall && saturdayCall !== call) {
+                        errors.push(formatDate(date) + ': Friday call (' + call + ') doesn\'t match Saturday call (' + saturdayCall + ')');
+                    }
+                    if (sundayCall && sundayCall !== call) {
+                        errors.push(formatDate(date) + ': Friday call (' + call + ') doesn\'t match Sunday call (' + sundayCall + ')');
+                    }
+                }
+
+                // Check 8: Monday post should match Sunday call
+                if (isMonday && post && date > 1) {
+                    const sundayCall = getAssignment(date - 1, 'call');
+                    if (sundayCall && post !== sundayCall) {
+                        warnings.push(formatDate(date) + ': Monday post is ' + post + ' but Sunday call was ' + sundayCall);
+                    }
+                }
+
+                // Check 9: Margolies should not be off or post on 3rd Wednesday (unless on vacation)
+                if (isThirdWednesday(date, currentMonth, currentYear) && !vacation) {
+                    if (off === 'Margolies') {
+                        errors.push(formatDate(date) + ' (3rd Wednesday): Margolies cannot be off');
+                    }
+                    if (post === 'Margolies') {
+                        errors.push(formatDate(date) + ' (3rd Wednesday): Margolies cannot be post');
+                    }
+                }
+            }
+
+            // Check 10: Max 1 weekday call per week per doctor
+            doctors.forEach(doctor => {
+                Object.keys(weeklyCallCounts[doctor]).forEach(weekNum => {
+                    if (weeklyCallCounts[doctor][weekNum] > 1) {
+                        warnings.push('Week ' + (parseInt(weekNum) + 1) + ': ' + doctor + ' has ' + weeklyCallCounts[doctor][weekNum] + ' weekday calls (should be max 1)');
+                    }
+                });
+            });
+
+            // Display results
+            let message = '=== Schedule Check Results ===\n\n';
+
+            if (errors.length === 0 && warnings.length === 0) {
+                message += 'No errors or warnings found. Schedule looks good!';
+            } else {
+                if (errors.length > 0) {
+                    message += 'ERRORS (' + errors.length + '):\n';
+                    errors.forEach(e => { message += '  - ' + e + '\n'; });
+                    message += '\n';
+                }
+                if (warnings.length > 0) {
+                    message += 'WARNINGS (' + warnings.length + '):\n';
+                    warnings.forEach(w => { message += '  - ' + w + '\n'; });
+                }
+            }
+
+            alert(message);
+        }
+
+        function generateReport() {
+            const doctors = ['Margolies', 'Racine', 'Mckeown', 'Jackson', 'Piennette', 'Fellow'];
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const title = document.getElementById('calendarTitle').textContent;
+
+            // Initialize counts
+            const counts = {};
+            doctors.forEach(doc => {
+                counts[doc] = { weekdayCall: 0, off: 0 };
+            });
+
+            // Count assignments
+            for (let date = 1; date <= daysInMonth; date++) {
+                const dayOfWeek = new Date(currentYear, currentMonth, date).getDay();
+
+                // Count weekday calls (Mon-Thu only, dayOfWeek 1-4)
+                if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+                    const callKey = currentYear + '-' + currentMonth + '-' + date + '-call';
+                    const callDoctor = assignments[callKey];
+                    if (callDoctor && counts[callDoctor]) {
+                        counts[callDoctor].weekdayCall++;
+                    }
+                }
+
+                // Count off assignments
+                const offKey = currentYear + '-' + currentMonth + '-' + date + '-off';
+                const offDoctor = assignments[offKey];
+                if (offDoctor && counts[offDoctor]) {
+                    counts[offDoctor].off++;
+                }
+            }
+
+            // Build report
+            let report = '=== Fairness Report: ' + title + ' ===\n\n';
+
+            // Header
+            report += 'Doctor'.padEnd(12) + ' | Weekday Calls | Off Days\n';
+            report += '-'.repeat(42) + '\n';
+
+            // Data rows
+            doctors.forEach(doctor => {
+                const c = counts[doctor];
+                report += doctor.padEnd(12) + ' | ';
+                report += String(c.weekdayCall).padStart(13) + ' | ';
+                report += String(c.off).padStart(8) + '\n';
+            });
+
+            alert(report);
+        }
+
+        function generateScheduleText() {
+            const title = document.getElementById('calendarTitle').textContent;
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            let text = '=== ' + title + ' Schedule ===\n\n';
+
+            for (let date = 1; date <= daysInMonth; date++) {
+                const dayOfWeek = new Date(currentYear, currentMonth, date).getDay();
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const dayName = days[dayOfWeek];
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                const holiday = isHoliday(date, currentMonth, currentYear);
+
+                const prefix = currentYear + '-' + currentMonth + '-' + date + '-';
+                const call = assignments[prefix + 'call'] || '-';
+                const mw2 = assignments[prefix + 'mw2'] || '-';
+                const mw3 = assignments[prefix + 'mw3'] || '-';
+                const post = assignments[prefix + 'post'] || '-';
+                const off = assignments[prefix + 'off'] || '-';
+                const vacation = assignments[prefix + 'vacation'] || '-';
+
+                text += dayName + ' ' + monthNames[currentMonth].substring(0, 3) + ' ' + date + ': ';
+
+                if (isWeekend || holiday) {
+                    text += 'Call: ' + call;
+                    if (holiday) text += ' (' + holiday + ')';
+                } else {
+                    text += 'Call: ' + call + ', MW2: ' + mw2 + ', MW3: ' + mw3 + ', Post: ' + post;
+                    if (vacation !== '-') {
+                        text += ', Vacation: ' + vacation;
+                    } else {
+                        text += ', Off: ' + off;
+                    }
+                }
+                text += '\n';
+            }
+
+            return text;
+        }
+
+        function shareViaEmail() {
+            const title = document.getElementById('calendarTitle').textContent;
+            const body = generateScheduleText();
+            const subject = 'Medical Staff Schedule - ' + title;
+            const mailtoLink = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+            window.location.href = mailtoLink;
+        }
+
+        function shareViaSMS() {
+            const body = generateScheduleText();
+            // Use sms: protocol - works on mobile devices
+            const smsLink = 'sms:?body=' + encodeURIComponent(body);
+            window.location.href = smsLink;
+        }
+
+        function copyToClipboard() {
+            const text = generateScheduleText();
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Schedule copied to clipboard!');
+            }).catch(function(err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Schedule copied to clipboard!');
+            });
+        }
+
+        function generateCalendarHTML() {
+            const title = document.getElementById('calendarTitle').textContent;
+            return `<!DOCTYPE html>
+<html>
+<head>
+    <title>Work Schedule - ${title}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 15px; }
+        .calendar-container { max-width: 1200px; margin: 0 auto; }
+        .calendar-header { background-color: #2c3e50; color: white; padding: 12px; text-align: center; }
+        .calendar-header h2 { margin: 0; font-size: 22px; }
+        .calendar { width: 100%; border-collapse: collapse; }
+        .calendar th { background-color: #34495e; color: white; padding: 8px 3px; text-align: center; font-size: 13px; }
+        .calendar td { border: 2px solid #bdc3c7; height: 100px; width: 14.28%; vertical-align: top; position: relative; }
+        .date-number { position: absolute; top: 2px; left: 5px; font-weight: bold; font-size: 13px; }
+        .assignment-space { margin-top: 20px; padding: 3px; height: calc(100% - 20px); margin-left: 3px; margin-right: 3px; }
+        .assignment-lines { height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .assignment-line { display: flex; align-items: center; border-bottom: 1px solid #ddd; padding: 1px 0; height: 16px; font-size: 9px; }
+        .assignment-label { font-weight: bold; margin-right: 4px; min-width: 45px; font-size: 8px; color: #666; }
+        .assignment-value { font-size: 9px; color: #2c3e50; font-weight: bold; }
+        .other-month { background-color: #ecf0f1; }
+        .today { background-color: #e8f5e8; }
+        @media print { body { padding: 0; margin: 0; } .calendar td { height: 85px; } }
+        @page { margin: 0.25in; size: letter landscape; }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        ${document.querySelector('.calendar-container').innerHTML}
+    </div>
+</body>
+</html>`;
+        }
+
+        function shareCalendarViaEmail() {
+            const title = document.getElementById('calendarTitle').textContent;
+            const calendarHTML = generateCalendarHTML();
+
+            // Create a Blob and data URL for the HTML
+            const blob = new Blob([calendarHTML], { type: 'text/html' });
+            const dataUrl = URL.createObjectURL(blob);
+
+            // Open email with instructions since we can't attach files directly
+            const subject = 'Medical Staff Schedule - ' + title;
+            const body = 'Please find the schedule calendar attached or view it here:\n\n' +
+                        '(The calendar has been opened in a new tab. You can save it and attach to this email, or copy/paste as needed.)\n\n' +
+                        'Schedule: ' + title;
+
+            // Open calendar in new tab so user can save/copy
+            const newTab = window.open('', '_blank');
+            newTab.document.write(calendarHTML);
+            newTab.document.close();
+
+            // Open email client
+            const mailtoLink = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+            window.location.href = mailtoLink;
+        }
+
+        function openCalendarInNewTab() {
+            const calendarHTML = generateCalendarHTML();
+            const newTab = window.open('', '_blank');
+            newTab.document.write(calendarHTML);
+            newTab.document.close();
+        }
+
+        function copyCalendarHTML() {
+            const calendarHTML = generateCalendarHTML();
+            navigator.clipboard.writeText(calendarHTML).then(function() {
+                alert('Calendar HTML copied to clipboard!\n\nYou can paste this into an email as HTML or save it as an .html file.');
+            }).catch(function(err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = calendarHTML;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Calendar HTML copied to clipboard!\n\nYou can paste this into an email as HTML or save it as an .html file.');
+            });
+        }
+
+        function downloadSchedule() {
+            const title = document.getElementById('calendarTitle').textContent;
+            const calendarHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Work Schedule - ${title}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 15px; }
+        .calendar-container { max-width: 1200px; margin: 0 auto; }
+        .calendar-header { background-color: #2c3e50; color: white; padding: 12px; text-align: center; }
+        .calendar-header h2 { margin: 0; font-size: 22px; }
+        .calendar { width: 100%; border-collapse: collapse; }
+        .calendar th { background-color: #34495e; color: white; padding: 8px 3px; text-align: center; font-size: 13px; }
+        .calendar td { border: 2px solid #bdc3c7; height: 100px; width: 14.28%; vertical-align: top; position: relative; }
+        .date-number { position: absolute; top: 2px; left: 5px; font-weight: bold; font-size: 13px; }
+        .assignment-space { margin-top: 20px; padding: 3px; height: calc(100% - 20px); margin-left: 3px; margin-right: 3px; }
+        .assignment-lines { height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .assignment-line { display: flex; align-items: center; border-bottom: 1px solid #ddd; padding: 1px 0; height: 16px; font-size: 9px; }
+        .assignment-label { font-weight: bold; margin-right: 4px; min-width: 45px; font-size: 8px; color: #666; }
+        .assignment-value { font-size: 9px; color: #2c3e50; font-weight: bold; }
+        .other-month { background-color: #ecf0f1; }
+        .today { background-color: #e8f5e8; }
+        @media print { body { padding: 0; margin: 0; } .calendar td { height: 85px; } }
+        @page { margin: 0.25in; size: letter landscape; }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        ${document.querySelector('.calendar-container').innerHTML}
+    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([calendarHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'schedule-' + title.replace(/\s+/g, '-') + '.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function saveSchedule() {
+            const scheduleData = {
+                month: currentMonth,
+                year: currentYear,
+                assignments: assignments,
+                savedDate: new Date().toISOString()
+            };
+
+            const dataStr = JSON.stringify(scheduleData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'schedule-' + monthNames[currentMonth] + '-' + currentYear + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert('Schedule saved!');
+        }
+
+        function loadSchedule() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const scheduleData = JSON.parse(event.target.result);
+
+                        // Merge loaded assignments with existing
+                        Object.assign(assignments, scheduleData.assignments || {});
+
+                        document.getElementById('monthSelect').value = scheduleData.month || 0;
+                        document.getElementById('yearInput').value = scheduleData.year || 2025;
+
+                        generateCalendar();
+                        alert('Schedule loaded!');
+                    } catch (error) {
+                        alert('Error loading schedule file');
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            input.click();
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            const today = new Date();
+            document.getElementById('monthSelect').value = today.getMonth();
+            document.getElementById('yearInput').value = today.getFullYear();
+            generateCalendar();
+        };
+    </script>
+</body>
+</html>
