@@ -341,58 +341,68 @@
                 display: none;
             }
 
+            .modal-overlay {
+                display: none !important;
+            }
+
             .calendar-container {
                 box-shadow: none;
                 border-radius: 0;
                 max-width: none;
                 margin: 0;
+                width: 100%;
+                height: 100vh;
+            }
+
+            .calendar {
+                height: calc(100vh - 50px);
             }
 
             .calendar td {
-                height: 60px;
+                height: 110px;
                 page-break-inside: avoid;
-                border: 1px solid #999;
+                border: 1px solid #666;
             }
 
             .assignment-space {
-                margin-top: 12px;
-                height: calc(100% - 12px);
+                margin-top: 16px;
+                height: calc(100% - 18px);
             }
 
             .assignment-line {
-                height: 7px;
-                padding: 0;
+                height: 12px;
+                padding: 1px 0;
             }
 
             .assignment-label {
-                font-size: 5px;
-                min-width: 24px;
+                font-size: 9px;
+                min-width: 38px;
             }
 
             .assignment-value {
-                font-size: 5px;
+                font-size: 9px;
             }
 
             .calendar-header {
-                padding: 5px;
+                padding: 8px;
             }
 
             .calendar-header h2 {
-                font-size: 15px;
+                font-size: 20px;
             }
 
             .calendar th {
-                padding: 3px 1px;
-                font-size: 9px;
+                padding: 6px 2px;
+                font-size: 12px;
             }
 
             .date-number {
-                font-size: 9px;
+                font-size: 12px;
             }
         }
 
         @page {
-            margin: 0.1in;
+            margin: 0.25in;
             size: letter landscape;
         }
 
