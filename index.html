@@ -395,9 +395,69 @@
             margin: 0.1in;
             size: letter landscape;
         }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .modal-buttons {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .modal-buttons button {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
+    <div id="pasteModal" class="modal-overlay" onclick="closePasteModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3>Paste Schedule JSON</h3>
+            <textarea id="pasteArea" placeholder="Paste your schedule JSON here..."></textarea>
+            <div class="modal-buttons">
+                <button class="clear-btn" onclick="closePasteModal()">Cancel</button>
+                <button onclick="loadPastedSchedule()">Load Schedule</button>
+            </div>
+        </div>
+    </div>
+
     <div class="controls">
         <h1>Medical Staff Schedule</h1>
 
@@ -432,6 +492,7 @@
         <button class="clear-btn" onclick="clearAllAssignments()">Clear All</button>
         <button onclick="saveSchedule()" style="background-color: #ff9800;">Save</button>
         <button onclick="loadSchedule()" style="background-color: #9c27b0;">Load</button>
+        <button onclick="pasteSchedule()" style="background-color: #9c27b0;">Paste</button>
         <div class="dropdown">
             <button class="dropdown-btn">Share ▼</button>
             <div class="dropdown-content">
@@ -1897,6 +1958,44 @@
             };
 
             input.click();
+        }
+
+        function pasteSchedule() {
+            document.getElementById('pasteModal').style.display = 'flex';
+            document.getElementById('pasteArea').value = '';
+            document.getElementById('pasteArea').focus();
+        }
+
+        function closePasteModal(event) {
+            if (!event || event.target === document.getElementById('pasteModal')) {
+                document.getElementById('pasteModal').style.display = 'none';
+            }
+        }
+
+        function loadPastedSchedule() {
+            const pasteArea = document.getElementById('pasteArea');
+            const text = pasteArea.value.trim();
+
+            if (!text) {
+                alert('Please paste your schedule JSON');
+                return;
+            }
+
+            try {
+                const scheduleData = JSON.parse(text);
+
+                // Merge loaded assignments with existing
+                Object.assign(assignments, scheduleData.assignments || {});
+
+                document.getElementById('monthSelect').value = scheduleData.month || 0;
+                document.getElementById('yearInput').value = scheduleData.year || 2025;
+
+                closePasteModal();
+                generateCalendar();
+                alert('Schedule loaded!');
+            } catch (error) {
+                alert('Invalid JSON format. Please check your pasted content.');
+            }
         }
 
         // Initialize on page load
