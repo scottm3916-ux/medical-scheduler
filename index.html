@@ -330,6 +330,53 @@
             font-weight: bold;
         }
 
+        .assignment-line.clickable {
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        .assignment-line.clickable:hover {
+            background-color: #e3f2fd;
+        }
+
+        .inline-dropdown {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 500;
+            min-width: 90px;
+            font-size: 11px;
+        }
+
+        .inline-dropdown.visible {
+            display: block;
+        }
+
+        .inline-dropdown div {
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .inline-dropdown div:hover {
+            background-color: #e3f2fd;
+        }
+
+        .inline-dropdown div:first-child {
+            border-radius: 4px 4px 0 0;
+        }
+
+        .inline-dropdown div:last-child {
+            border-radius: 0 0 4px 4px;
+        }
+
+        .inline-dropdown div.clear-option {
+            color: #d32f2f;
+            border-top: 1px solid #eee;
+        }
+
         @media print {
             body {
                 background: white;
@@ -466,6 +513,16 @@
                 <button onclick="loadPastedSchedule()">Load Schedule</button>
             </div>
         </div>
+    </div>
+
+    <div id="inlineDropdown" class="inline-dropdown">
+        <div onclick="selectDoctor('Margolies')">Margolies</div>
+        <div onclick="selectDoctor('Racine')">Racine</div>
+        <div onclick="selectDoctor('Mckeown')">Mckeown</div>
+        <div onclick="selectDoctor('Jackson')">Jackson</div>
+        <div onclick="selectDoctor('Piennette')">Piennette</div>
+        <div onclick="selectDoctor('Fellow')">Fellow</div>
+        <div class="clear-option" onclick="selectDoctor('')">Clear</div>
     </div>
 
     <div class="controls">
@@ -833,6 +890,14 @@
                 if (date) {
                     const key = year + '-' + month + '-' + date + '-' + assignment;
                     value.textContent = assignments[key] || '';
+
+                    // Make line clickable
+                    line.className = 'assignment-line clickable';
+                    line.dataset.key = key;
+                    line.onclick = function(e) {
+                        e.stopPropagation();
+                        showInlineDropdown(e, key);
+                    };
                 }
 
                 line.appendChild(label);
@@ -2007,6 +2072,47 @@
                 alert('Invalid JSON format. Please check your pasted content.');
             }
         }
+
+        // Inline dropdown for quick assignment editing
+        let currentDropdownKey = null;
+
+        function showInlineDropdown(event, key) {
+            const dropdown = document.getElementById('inlineDropdown');
+            currentDropdownKey = key;
+
+            // Position dropdown near the clicked element
+            const rect = event.target.getBoundingClientRect();
+            dropdown.style.left = (rect.left + window.scrollX) + 'px';
+            dropdown.style.top = (rect.bottom + window.scrollY + 2) + 'px';
+
+            dropdown.classList.add('visible');
+        }
+
+        function hideInlineDropdown() {
+            const dropdown = document.getElementById('inlineDropdown');
+            dropdown.classList.remove('visible');
+            currentDropdownKey = null;
+        }
+
+        function selectDoctor(doctor) {
+            if (currentDropdownKey) {
+                if (doctor) {
+                    assignments[currentDropdownKey] = doctor;
+                } else {
+                    delete assignments[currentDropdownKey];
+                }
+                generateCalendar();
+            }
+            hideInlineDropdown();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('inlineDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                hideInlineDropdown();
+            }
+        });
 
         // Initialize on page load
         window.onload = function() {
