@@ -377,6 +377,50 @@
             border-top: 1px solid #eee;
         }
 
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirm-modal-content {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 8px;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .confirm-modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #d32f2f;
+        }
+
+        .confirm-modal-content p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .confirm-modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .confirm-modal-buttons button {
+            min-width: 100px;
+        }
+
         @media print {
             body {
                 background: white;
@@ -523,6 +567,18 @@
         <div onclick="selectDoctor('Piennette')">Piennette</div>
         <div onclick="selectDoctor('Fellow')">Fellow</div>
         <div class="clear-option" onclick="selectDoctor('')">Clear</div>
+    </div>
+
+    <div id="clearConfirmModal" class="confirm-modal">
+        <div class="confirm-modal-content">
+            <h3>Clear All Assignments?</h3>
+            <p>This will remove all assignments for the current month. Would you like to save your work first?</p>
+            <div class="confirm-modal-buttons">
+                <button onclick="saveAndClear()" style="background-color: #ff9800;">Save First</button>
+                <button onclick="confirmClearAll()" class="clear-btn">Clear Anyway</button>
+                <button onclick="closeClearConfirm()" style="background-color: #607d8b;">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <div class="controls">
@@ -1490,16 +1546,28 @@
         }
 
         function clearAllAssignments() {
-            if (confirm('Clear all assignments for this month?')) {
-                // Only clear current month's assignments
-                const prefix = currentYear + '-' + currentMonth + '-';
-                Object.keys(assignments).forEach(key => {
-                    if (key.startsWith(prefix)) {
-                        delete assignments[key];
-                    }
-                });
-                generateCalendar();
-            }
+            document.getElementById('clearConfirmModal').style.display = 'flex';
+        }
+
+        function closeClearConfirm() {
+            document.getElementById('clearConfirmModal').style.display = 'none';
+        }
+
+        function confirmClearAll() {
+            // Only clear current month's assignments
+            const prefix = currentYear + '-' + currentMonth + '-';
+            Object.keys(assignments).forEach(key => {
+                if (key.startsWith(prefix)) {
+                    delete assignments[key];
+                }
+            });
+            closeClearConfirm();
+            generateCalendar();
+        }
+
+        function saveAndClear() {
+            saveSchedule();
+            confirmClearAll();
         }
 
         function clearDays() {
