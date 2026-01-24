@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Staff Schedule</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -612,6 +613,7 @@
         <button onclick="generateReport()" style="background-color: #795548;">Report</button>
         <button class="print-btn" onclick="window.print()">Print</button>
         <button class="print-btn" onclick="downloadSchedule()">Download</button>
+        <button class="print-btn" onclick="saveAsImage()">Save Image</button>
         <button class="clear-btn" onclick="clearAllAssignments()">Clear All</button>
         <button onclick="saveSchedule()" style="background-color: #ff9800;">Save</button>
         <button onclick="loadSchedule()" style="background-color: #9c27b0;">Load</button>
@@ -2046,6 +2048,25 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        function saveAsImage() {
+            const title = document.getElementById('calendarTitle').textContent;
+            const calendar = document.querySelector('.calendar-container');
+
+            html2canvas(calendar, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+                useCORS: true
+            }).then(function(canvas) {
+                const link = document.createElement('a');
+                link.download = 'schedule-' + title.replace(/\s+/g, '-') + '.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            }).catch(function(error) {
+                alert('Error creating image. Please try again.');
+                console.error('Image capture error:', error);
+            });
         }
 
         function saveSchedule() {
