@@ -1,7 +1,9 @@
-# Medical Staff Scheduler - Project Documentation
+# UABMW Anesthesiologist Scheduler - Project Documentation
 
 ## Overview
-A web application for scheduling medical staff (doctors) with automated weekday scheduling and manual weekend/vacation/holiday entry.
+A web application for scheduling anesthesiologists with automated weekday scheduling and manual weekend/vacation/holiday entry.
+
+**Live URL:** https://scottm3916-ux.github.io/medical-scheduler/
 
 ## Doctors
 - **Auto-assigned (5):** Margolies, Racine, Mckeown, Jackson, Piennette
@@ -54,11 +56,12 @@ Holidays are call-only days (like weekends) and must be assigned manually:
 | **Auto-Fill Weekdays** | Runs the scheduling algorithm to fill Mon-Fri assignments |
 | **Check for Errors** | Validates schedule against all rules, reports errors and warnings |
 | **Report** | Shows fairness report with weekday call and off counts per doctor |
-| **Print** | Opens print dialog for the calendar |
+| **Print** | Opens print dialog for the calendar (optimized to fill landscape page) |
 | **Download** | Downloads calendar as an HTML file |
-| **Clear All** | Clears all assignments for the current month |
+| **Clear All** | Shows confirmation dialog with options: Save First, Clear Anyway, or Cancel |
 | **Save** | Saves schedule to a JSON file |
 | **Load** | Loads schedule from a JSON file |
+| **Paste** | Opens a text box to paste JSON schedule data (useful for cross-device access) |
 | **Share** | Dropdown menu with sharing options (see below) |
 
 ### Share Options
@@ -86,6 +89,12 @@ Holidays are call-only days (like weekends) and must be assigned manually:
 - Select start date and optional end date
 - **Clear Days** - Removes ALL assignments for selected date range
 - Useful for making manual adjustments without clearing entire month
+
+### Quick Edit (Clickable Calendar)
+- **Click any assignment line** on the calendar (call, mw2, mw3, post, vacation, off)
+- A dropdown appears with all doctors plus a "Clear" option
+- Select a doctor to assign them, or Clear to remove the assignment
+- Much faster than using the Make Assignment form for small changes
 
 ## Auto-Fill Rules
 
@@ -166,8 +175,17 @@ This helps ensure equitable distribution across doctors.
 5. Click "Auto-Fill Weekdays" to generate the rest of the schedule
 6. Click "Check for Errors" to validate
 7. Click "Report" to verify fair distribution
-8. Make manual adjustments as needed (use "Clear Days" to clear specific days)
+8. Make manual adjustments as needed (click assignment lines or use "Clear Days")
 9. Save/Print/Download/Share the schedule
+
+## Cross-Device Access
+To work on schedules from multiple devices (iPad, work computer, etc.):
+
+1. **Save** your schedule on your main computer (downloads JSON file)
+2. Store the JSON file in cloud storage (iCloud, Google Drive, Dropbox) or email it to yourself
+3. On another device, open the app URL and click **Paste**
+4. Copy the JSON content and paste it into the text box
+5. Click **Load Schedule**
 
 ## File Structure
 - `index.html` - Single-file application containing HTML, CSS, and JavaScript
