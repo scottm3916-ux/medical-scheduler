@@ -57,6 +57,7 @@ Holidays are call-only days (like weekends) and must be assigned manually:
 | **Check for Errors** | Validates schedule against all rules, reports errors and warnings |
 | **Report** | Shows fairness report with weekday call and off counts per doctor |
 | **Print** | Opens print dialog for the calendar (optimized to fill landscape page) |
+| **Save Image** | Downloads the calendar as a JPEG image |
 | **Download** | Downloads calendar as an HTML file |
 | **Clear All** | Shows confirmation dialog with options: Save First, Clear Anyway, or Cancel |
 | **Save** | Saves schedule to a JSON file |
@@ -82,6 +83,10 @@ Holidays are call-only days (like weekends) and must be assigned manually:
 ### Weekend Call Section
 - Select doctor and weekend (shown as Friday date)
 - Automatically assigns Friday, Saturday, Sunday call + Monday post
+- **Fellow at 3pm** - Check this box when a Fellow takes over at 3pm on Friday
+  - Friday displays "Doctor/Fellow" (e.g., "Margolies/Fellow")
+  - Saturday and Sunday show "Fellow"
+  - Monday post is assigned to the doctor (not the Fellow)
 - **Assign** - Creates weekend assignment
 - **Clear** - Removes weekend assignment
 

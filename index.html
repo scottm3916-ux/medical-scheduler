@@ -693,6 +693,9 @@
                         <option value="">Select</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="fellowTakeover"> Fellow at 3pm</label>
+                </div>
                 <button onclick="assignWeekend()">Assign</button>
                 <button class="clear-btn" onclick="clearWeekend()">Clear</button>
             </div>
@@ -1482,6 +1485,7 @@
         function assignWeekend() {
             const employee = document.getElementById('weekendEmployee').value;
             const fridayDate = parseInt(document.getElementById('weekendSelect').value);
+            const fellowTakeover = document.getElementById('fellowTakeover').checked;
 
             if (!employee || !fridayDate) {
                 alert('Please select doctor and weekend');
@@ -1494,17 +1498,23 @@
 
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
+            // Determine who covers each day based on fellowTakeover checkbox
+            const fridayCall = fellowTakeover ? employee + '/Fellow' : employee;
+            const weekendCall = fellowTakeover ? 'Fellow' : employee;
+            // Monday post always goes to the selected doctor (even with Fellow takeover)
+            const mondayPostDoctor = employee;
+
             // Assign Friday call
-            assignments[currentYear + '-' + currentMonth + '-' + friday + '-call'] = employee;
+            assignments[currentYear + '-' + currentMonth + '-' + friday + '-call'] = fridayCall;
 
             // Assign Saturday call (if in same month)
             if (saturday <= daysInMonth) {
-                assignments[currentYear + '-' + currentMonth + '-' + saturday + '-call'] = employee;
+                assignments[currentYear + '-' + currentMonth + '-' + saturday + '-call'] = weekendCall;
             }
 
             // Assign Sunday call (if in same month)
             if (sunday <= daysInMonth) {
-                assignments[currentYear + '-' + currentMonth + '-' + sunday + '-call'] = employee;
+                assignments[currentYear + '-' + currentMonth + '-' + sunday + '-call'] = weekendCall;
             }
 
             // Auto-assign Monday post-call (only if doctor doesn't have another assignment)
@@ -1512,15 +1522,16 @@
             if (monday <= daysInMonth) {
                 const mondayPrefix = currentYear + '-' + currentMonth + '-' + monday + '-';
                 const hasExistingAssignment = ['call', 'mw2', 'mw3', 'post', 'off', 'vacation'].some(
-                    type => assignments[mondayPrefix + type] === employee
+                    type => assignments[mondayPrefix + type] === mondayPostDoctor
                 );
                 if (!hasExistingAssignment) {
-                    assignments[mondayPrefix + 'post'] = employee;
+                    assignments[mondayPrefix + 'post'] = mondayPostDoctor;
                 }
             }
 
             document.getElementById('weekendEmployee').value = '';
             document.getElementById('weekendSelect').value = '';
+            document.getElementById('fellowTakeover').checked = false;
 
             generateCalendar();
         }
@@ -1749,19 +1760,32 @@
                 if (isFriday && call) {
                     const saturdayCall = getAssignment(date + 1, 'call');
                     const sundayCall = getAssignment(date + 2, 'call');
-                    if (saturdayCall && saturdayCall !== call) {
+
+                    // Handle split Friday call (e.g., "Margolies/Fellow")
+                    const isSplitFriday = call.includes('/Fellow');
+                    const expectedWeekendCall = isSplitFriday ? 'Fellow' : call;
+
+                    if (saturdayCall && saturdayCall !== expectedWeekendCall) {
                         errors.push(formatDate(date) + ': Friday call (' + call + ') doesn\'t match Saturday call (' + saturdayCall + ')');
                     }
-                    if (sundayCall && sundayCall !== call) {
+                    if (sundayCall && sundayCall !== expectedWeekendCall) {
                         errors.push(formatDate(date) + ': Friday call (' + call + ') doesn\'t match Sunday call (' + sundayCall + ')');
                     }
                 }
 
-                // Check 8: Monday post should match Sunday call
+                // Check 8: Monday post should match Sunday call (or Friday doctor for split weekends)
                 if (isMonday && post && date > 1) {
                     const sundayCall = getAssignment(date - 1, 'call');
-                    if (sundayCall && post !== sundayCall) {
-                        warnings.push(formatDate(date) + ': Monday post is ' + post + ' but Sunday call was ' + sundayCall);
+                    const fridayCall = getAssignment(date - 3, 'call');
+
+                    // For split Friday weekends, Monday post goes to the doctor from the split
+                    let expectedPostDoctor = sundayCall;
+                    if (sundayCall === 'Fellow' && fridayCall && fridayCall.includes('/Fellow')) {
+                        expectedPostDoctor = fridayCall.split('/')[0]; // Get doctor before "/Fellow"
+                    }
+
+                    if (expectedPostDoctor && post !== expectedPostDoctor) {
+                        warnings.push(formatDate(date) + ': Monday post is ' + post + ' but expected ' + expectedPostDoctor);
                     }
                 }
 
