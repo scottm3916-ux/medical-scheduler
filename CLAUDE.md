@@ -146,6 +146,11 @@ On the **3rd Wednesday of each month**, Margolies must be assigned **call, mw2, 
 - Exception: If Margolies has vacation (manually entered), this rule does not apply
 - The auto-fill algorithm automatically enforces this rule
 
+#### Margolies 4th Tuesday Rule
+On the **4th Tuesday of each month**, Margolies must be assigned **call**.
+- Exception: If Margolies has vacation (manually entered), this rule does not apply
+- The auto-fill algorithm automatically enforces this rule
+
 ## Check for Errors
 
 The error checker validates:
@@ -158,6 +163,7 @@ The error checker validates:
 - Weekend call mismatch (Fri/Sat/Sun should have same doctor)
 - Missing weekend/holiday call
 - Margolies assigned off or post on 3rd Wednesday (unless on vacation)
+- Margolies not on call on 4th Tuesday (unless on vacation)
 
 ### Warnings (Review)
 - Post doesn't match yesterday's call doctor

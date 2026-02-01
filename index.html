@@ -928,6 +928,18 @@
             return date === thirdWednesday;
         }
 
+        function isFourthTuesday(date, month, year) {
+            const dayOfWeek = new Date(year, month, date).getDay();
+            if (dayOfWeek !== 2) return false; // Not a Tuesday
+
+            // Find the first Tuesday of the month
+            const firstDay = new Date(year, month, 1).getDay();
+            const firstTuesday = 1 + ((9 - firstDay) % 7);
+            const fourthTuesday = firstTuesday + 21;
+
+            return date === fourthTuesday;
+        }
+
         function createAssignmentLines(container, date, month, year, dayOfWeek) {
             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Sat, Sun only (Friday has full assignments)
             const holiday = date ? isHoliday(date, month, year) : null;
@@ -1246,8 +1258,23 @@
                 return null;
             }
 
+            // Special rule: Margolies should be on call on 4th Tuesday (unless on vacation)
+            unassignedDays.forEach(({ date, dayOfWeek }) => {
+                if (isFourthTuesday(date, currentMonth, currentYear)) {
+                    // Check if Margolies is on vacation this day
+                    if (vacationDays[date] !== 'Margolies' && !callAssignments[date]) {
+                        callAssignments[date] = 'Margolies';
+                        callCounts['Margolies']++;
+                        dayOfWeekCounts['Margolies'][dayOfWeek]++;
+                        const weekNum = getWeekNumber(date);
+                        weeklyCallCounts['Margolies'][weekNum] = (weeklyCallCounts['Margolies'][weekNum] || 0) + 1;
+                    }
+                }
+            });
+
             // Assign Mon-Thu calls with equal distribution
             unassignedDays.forEach(({ date, dayOfWeek }) => {
+                if (callAssignments[date]) return; // Skip if already assigned (e.g., 4th Tuesday rule)
                 const doctor = findBestDoctorForCall(date, dayOfWeek);
                 if (doctor) {
                     callAssignments[date] = doctor;
@@ -1798,9 +1825,16 @@
                         errors.push(formatDate(date) + ' (3rd Wednesday): Margolies cannot be post');
                     }
                 }
+
+                // Check 10: Margolies should be on call on 4th Tuesday (unless on vacation)
+                if (isFourthTuesday(date, currentMonth, currentYear) && vacation !== 'Margolies') {
+                    if (call !== 'Margolies') {
+                        errors.push(formatDate(date) + ' (4th Tuesday): Margolies should be on call');
+                    }
+                }
             }
 
-            // Check 10: Max 1 weekday call per week per doctor
+            // Check 11: Max 1 weekday call per week per doctor
             doctors.forEach(doctor => {
                 Object.keys(weeklyCallCounts[doctor]).forEach(weekNum => {
                     if (weeklyCallCounts[doctor][weekNum] > 1) {
