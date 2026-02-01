@@ -161,14 +161,14 @@ The error checker validates:
 - Double assignments (doctor has more than one assignment per day)
 - Unassigned doctors (all 5 must have an assignment each weekday)
 - Consecutive calls (same doctor on call two days in a row)
-- Weekend call mismatch (Fri/Sat/Sun should have same doctor)
+- Weekend call mismatch (Fri/Sat/Sun should have same doctor, or valid split pattern with Fellow)
 - Missing weekend/holiday call
 - Margolies assigned off or post on 3rd Wednesday (unless on vacation)
 - Margolies not on call on 4th Tuesday (unless on vacation)
 
 ### Warnings (Review)
 - Post doesn't match yesterday's call doctor
-- Monday post doesn't match Sunday call doctor
+- Monday post doesn't match expected doctor (Sunday call, or Friday doctor for split weekends)
 - Multiple weekday calls per week for same doctor
 
 ## Report
