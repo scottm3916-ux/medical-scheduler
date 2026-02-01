@@ -842,17 +842,21 @@
 
                     if (week === 0 && day < startingDayOfWeek) {
                         // Previous month days
-                        const prevMonth = new Date(year, month, 0);
-                        const prevDate = prevMonth.getDate() - (startingDayOfWeek - day - 1);
+                        const prevMonthDate = new Date(year, month, 0);
+                        const prevDate = prevMonthDate.getDate() - (startingDayOfWeek - day - 1);
+                        const prevMonthNum = month === 0 ? 11 : month - 1;
+                        const prevYear = month === 0 ? year - 1 : year;
                         dateNumber.textContent = prevDate;
                         cell.className = 'other-month';
-                        createAssignmentLines(assignmentLines, null, month, year, day);
+                        createAssignmentLines(assignmentLines, prevDate, prevMonthNum, prevYear, day);
                     } else if (date > daysInMonth) {
                         // Next month days
+                        const nextMonthNum = month === 11 ? 0 : month + 1;
+                        const nextYear = month === 11 ? year + 1 : year;
                         dateNumber.textContent = nextMonthDate;
-                        nextMonthDate++;
                         cell.className = 'other-month';
-                        createAssignmentLines(assignmentLines, null, month, year, day);
+                        createAssignmentLines(assignmentLines, nextMonthDate, nextMonthNum, nextYear, day);
+                        nextMonthDate++;
                     } else {
                         // Current month days
                         dateNumber.textContent = date;

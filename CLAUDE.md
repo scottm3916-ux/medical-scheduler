@@ -100,6 +100,7 @@ Holidays are call-only days (like weekends) and must be assigned manually:
 - A dropdown appears with all doctors plus a "Clear" option
 - Select a doctor to assign them, or Clear to remove the assignment
 - Much faster than using the Make Assignment form for small changes
+- **Overflow days supported** - Can also click and assign days from the previous/next month that appear on the calendar (useful for setting up post-call assignments at month boundaries)
 
 ## Auto-Fill Rules
 
